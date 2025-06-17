@@ -15,7 +15,7 @@ services:
       - mongo
       - redis
     volumes:
-      - ./config/wildduck:/wildduck/config
+      - ./config-generated/config-generated/wildduck:/wildduck/config
     labels:
       traefik.enable: true
       traefik.tcp.routers.wildduck-imaps.entrypoints: imaps
@@ -36,14 +36,14 @@ services:
     restart: unless-stopped
     command: 
       - ""
-    # ports:
-    #   - 3000:3000 # for local testing
+    ports:
+      - 3000:3000 # for local testing
     depends_on:
       - mongo
       - redis
       - wildduck
     volumes:
-      - ./config/wildduck-webmail:/app/config
+      - ./config-generated/config-generated/wildduck-webmail:/app/config
     labels:
       traefik.enable: true
       traefik.http.routers.wildduck-webmail.entrypoints: websecure
@@ -61,7 +61,7 @@ services:
       - mongo
       - redis
     volumes:
-      - ./config/zone-mta:/app/config
+      - ./config-generated/config-generated/zone-mta:/app/config
     labels:
       traefik.enable: true
       traefik.tcp.routers.zonemta.entrypoints: smtps
@@ -80,7 +80,7 @@ services:
       - redis
       - rspamd
     volumes:
-      - ./config/haraka:/app/config
+      - ./config-generated/config-generated/haraka:/app/config
       - ./certs/HOSTNAME-key.pem:/app/config/tls_key.pem
       - ./certs/HOSTNAME.pem:/app/config/tls_cert.pem
 
@@ -90,9 +90,9 @@ services:
     depends_on:
       - redis
     volumes:
-      - ./config/rspamd/override.d:/etc/rspamd/override.d
-      - ./config/rspamd/worker-normal.conf:/etc/rspamd/worker-normal.conf
-      - ./config/rspamd/local.d:/etc/rspamd/local.d
+      - ./config-generated/config-generated/rspamd/override.d:/etc/rspamd/override.d
+      - ./config-generated/config-generated/rspamd/worker-normal.conf:/etc/rspamd/worker-normal.conf
+      - ./config-generated/config-generated/rspamd/local.d:/etc/rspamd/local.d
 
   mongo:
     image: mongo
