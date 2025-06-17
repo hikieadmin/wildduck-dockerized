@@ -1,0 +1,33 @@
+FROM node:18-alpine
+
+# Install required packages
+RUN apk add --no-cache bash openssl curl
+
+# Create app directory
+WORKDIR /app
+
+# Copy configuration and setup files
+COPY default-config/ ./default-config/
+COPY setup-railway.sh ./setup-railway.sh
+COPY docker-compose.railway.yml ./docker-compose.yml
+
+# Make setup script executable
+RUN chmod +x ./setup-railway.sh
+
+# Create necessary directories
+RUN mkdir -p config certs
+
+# Expose ports
+EXPOSE 8080 3000 143 110 587 25
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:8080/health || exit 1
+
+# Start the application
+ENTRYPOINT ["./setup-railway.sh"]
+CMD ["node", "server.js"]

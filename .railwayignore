@@ -1,0 +1,67 @@
+# Railway ignore file
+
+# Development files
+.env
+.env.local
+.env.development
+.env.test
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+node_modules/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+
+# Generated config (will be created during setup)
+config-generated/
+
+# Certificates (will be generated)
+certs/
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+
+# Docker files not needed for Railway
+docker-compose.yml
+Dockerfile
+
+# Development scripts
+setup.sh
+
+# GitHub workflows
+.github/
