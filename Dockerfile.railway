@@ -15,7 +15,7 @@ COPY docker-compose.railway.yml ./docker-compose.yml
 RUN chmod +x ./setup-railway.sh
 
 # Create necessary directories
-RUN mkdir -p config certs
+RUN mkdir -p config-generated/config-generated certs
 
 # Expose ports
 EXPOSE 8080 3000 143 110 587 25

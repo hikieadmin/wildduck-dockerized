@@ -12,35 +12,35 @@ FULL_SETUP=${FULL_SETUP:-true}
 echo "DOMAINNAME: $MAILDOMAIN, HOSTNAME: $HOSTNAME, FULL_SETUP: $FULL_SETUP"
 
 # Create config directory if it doesn't exist
-if [ ! -e ./config ]; then 
-    echo "Copying default configuration into ./config"
-    mkdir -p config
-    cp -r ./default-config/* ./config/
+if [ ! -e ./config-generated/config-generated ]; then 
+    echo "Copying default configuration into ./config-generated/config-generated"
+    mkdir -p config-generated/config-generated
+    cp -r ./default-config/* ./config-generated/config-generated/
 fi
 
 # Update configuration files with Railway environment
 echo "Updating configuration for Railway deployment..."
 
 # Update WildDuck configuration
-if [ -f ./config/wildduck/default.toml ]; then
-    sed -i "s/localhost/$HOSTNAME/g" ./config/wildduck/default.toml
-    sed -i "s/127.0.0.1/0.0.0.0/g" ./config/wildduck/default.toml
+if [ -f ./config-generated/config-generated/wildduck/default.toml ]; then
+    sed -i "s/localhost/$HOSTNAME/g" ./config-generated/config-generated/wildduck/default.toml
+    sed -i "s/127.0.0.1/0.0.0.0/g" ./config-generated/config-generated/wildduck/default.toml
 fi
 
 # Update Haraka configuration
-if [ -f ./config/haraka/wildduck.yaml ]; then
-    sed -i "s/localhost/$HOSTNAME/g" ./config/haraka/wildduck.yaml
+if [ -f ./config-generated/config-generated/haraka/wildduck.yaml ]; then
+    sed -i "s/localhost/$HOSTNAME/g" ./config-generated/config-generated/haraka/wildduck.yaml
 fi
 
 # Update Zone-MTA configuration
-if [ -f ./config/zone-mta/zonemta.toml ]; then
-    sed -i "s/localhost/$HOSTNAME/g" ./config/zone-mta/zonemta.toml
+if [ -f ./config-generated/config-generated/zone-mta/zonemta.toml ]; then
+    sed -i "s/localhost/$HOSTNAME/g" ./config-generated/config-generated/zone-mta/zonemta.toml
 fi
 
 # Update webmail configuration
-if [ -f ./config/wildduck-webmail/default.toml ]; then
-    sed -i "s/localhost/$HOSTNAME/g" ./config/wildduck-webmail/default.toml
-    sed -i "s/127.0.0.1/0.0.0.0/g" ./config/wildduck-webmail/default.toml
+if [ -f ./config-generated/config-generated/wildduck-webmail/default.toml ]; then
+    sed -i "s/localhost/$HOSTNAME/g" ./config-generated/config-generated/wildduck-webmail/default.toml
+    sed -i "s/127.0.0.1/0.0.0.0/g" ./config-generated/config-generated/wildduck-webmail/default.toml
 fi
 
 echo "Configuration updated for Railway deployment"
