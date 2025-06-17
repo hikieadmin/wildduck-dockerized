@@ -111,25 +111,75 @@ fi
 log "Configuration updated for Railway deployment"
 log "Starting services..."
 
-# Collect Docker container information for logging
-docker_log "Listing Docker containers:"
-docker ps -a 2>&1 | tee -a "$DOCKER_LOG_FILE" || error_log "Failed to list Docker containers"
+# Check if docker command exists before trying to use it
+if command -v docker &> /dev/null; then
+    docker_log "Listing Docker containers:"
+    docker ps -a 2>&1 | tee -a "$DOCKER_LOG_FILE" || error_log "Failed to list Docker containers"
+else
+    log "Docker command not found, skipping container listing"
+fi
+
+# Create necessary directories for configuration if they don't exist
+log "Ensuring configuration directories exist"
+mkdir -p ./config-generated/config-generated/wildduck
+mkdir -p ./config-generated/config-generated/haraka
+mkdir -p ./config-generated/config-generated/zone-mta
+mkdir -p ./config-generated/config-generated/wildduck-webmail
+
+# Copy default configuration files if they don't exist
+if [ ! -f ./config-generated/config-generated/wildduck/default.toml ] && [ -f ./default-config/wildduck/default.toml ]; then
+    log "Copying WildDuck default configuration"
+    cp ./default-config/wildduck/default.toml ./config-generated/config-generated/wildduck/
+fi
+
+if [ ! -f ./config-generated/config-generated/haraka/wildduck.yaml ] && [ -f ./default-config/haraka/wildduck.yaml ]; then
+    log "Copying Haraka default configuration"
+    cp ./default-config/haraka/wildduck.yaml ./config-generated/config-generated/haraka/
+fi
+
+if [ ! -f ./config-generated/config-generated/zone-mta/zonemta.toml ] && [ -f ./default-config/zone-mta/zonemta.toml ]; then
+    log "Copying Zone-MTA default configuration"
+    cp ./default-config/zone-mta/zonemta.toml ./config-generated/config-generated/zone-mta/
+fi
+
+if [ ! -f ./config-generated/config-generated/wildduck-webmail/default.toml ] && [ -f ./default-config/wildduck-webmail/default.toml ]; then
+    log "Copying webmail default configuration"
+    cp ./default-config/wildduck-webmail/default.toml ./config-generated/config-generated/wildduck-webmail/
+fi
+
+# Check if we're running in Railway environment
+if [ -n "$RAILWAY_PUBLIC_DOMAIN" ]; then
+    log "Running in Railway environment with domain: $RAILWAY_PUBLIC_DOMAIN"
+fi
 
 # Start the main application
 if [ $# -eq 0 ]; then
     log "No arguments provided, using default command from Dockerfile"
-    # Capture Docker logs
-    docker_log "Starting Docker services with default command"
-    # No arguments provided, use the default command from Dockerfile
-    exec "$@" 2>&1 | tee -a "$DOCKER_LOG_FILE"
+    
+    # Check if we should run node directly instead of using Docker
+    if [ -f "./server.js" ]; then
+        log "Starting server.js directly"
+        node server.js 2>&1 | tee -a "$LOG_FILE"
+        SERVER_EXIT_CODE=$?
+        
+        if [ $SERVER_EXIT_CODE -ne 0 ]; then
+            error_log "Server exited with code $SERVER_EXIT_CODE"
+        fi
+    else
+        error_log "server.js not found, cannot start application"
+        exit 1
+    fi
 else
-    log "Arguments provided, running server.js with args: $@"
-    # Capture Docker logs
-    docker_log "Starting server.js with arguments: $@"
-    # Arguments were provided, run the server
-    node server.js 2>&1 | tee -a "$DOCKER_LOG_FILE"
+    log "Arguments provided, running with args: $@"
+    
+    # Execute the provided command
+    "$@" 2>&1 | tee -a "$LOG_FILE"
+    CMD_EXIT_CODE=$?
+    
+    if [ $CMD_EXIT_CODE -ne 0 ]; then
+        error_log "Command exited with code $CMD_EXIT_CODE"
+    fi
 fi
 
-# This part will only execute if the above commands fail
-error_log "Service startup failed"
-exit 1
+# Log completion
+log "Setup script completed"
