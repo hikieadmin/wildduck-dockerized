@@ -10,9 +10,14 @@ WORKDIR /app
 COPY default-config/ ./default-config/
 COPY setup-railway.sh ./setup-railway.sh
 COPY docker-compose.railway.yml ./docker-compose.yml
+COPY server.js ./server.js
+COPY package.json ./package.json
 
 # Make setup script executable
 RUN chmod +x ./setup-railway.sh
+
+# Install dependencies
+RUN npm install --production
 
 # Create necessary directories
 RUN mkdir -p config-generated/config-generated certs
